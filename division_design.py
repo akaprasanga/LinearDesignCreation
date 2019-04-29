@@ -4,6 +4,7 @@ from PyQt5.QtCore import QDateTime, Qt, QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import *
 from design_logic import DesignLogic as Design
+import cv2
 
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
@@ -20,7 +21,7 @@ class WidgetGallery(QDialog):
 
         topLayout = QHBoxLayout()
 
-        self.parameterGroupBox.setFixedWidth(350)
+        self.parameterGroupBox.setFixedWidth(400)
         mainLayout = QGridLayout()
         mainLayout.addLayout(topLayout, 0, 0, 1, 2)
         mainLayout.addWidget(self.parameterGroupBox, 1, 0)
@@ -302,7 +303,7 @@ class WidgetGallery(QDialog):
 
     def add_lines(self):
         number_of_lines, minimum_height = self.get_parameters()
-        empty= []
+        empty = []
         created_img, self.ltwo_list = self.design.divide_vertically(self.current_img, number_of_lines, minimum_height, empty)
         self.current_img = created_img
         # self.update_final_img(created_img)
@@ -352,9 +353,14 @@ class WidgetGallery(QDialog):
         fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "Untitled_1.png",
                                                   "PNG File (*.png);; JPG File (*.jpg)", options=options)
         if fileName:
-            from skimage import io
-            print(fileName)
-            io.imsave(fileName, self.current_img)
+            import os
+            f_name, f_extension = os.path.splitext(fileName)
+            if f_extension == '':
+                fileName = fileName + '.png'
+                fileName = fileName
+
+            saving_img = cv2.cvtColor(self.current_img, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(fileName, saving_img)
 
     def saveFileDialog_img2(self):
         options = QFileDialog.Options()
@@ -362,9 +368,13 @@ class WidgetGallery(QDialog):
         fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "Untitled_2.png",
                                                   "PNG File (*.png);; JPG File (*.jpg)", options=options)
         if fileName:
-            from skimage import io
-            print(fileName)
-            io.imsave(fileName, self.current_img_2)
+            import os
+            f_name, f_extension = os.path.splitext(fileName)
+            if f_extension == '':
+                fileName = fileName + '.png'
+                fileName = fileName
+            saving_img = cv2.cvtColor(self.current_img_2, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(fileName, saving_img)
 
     def open_color_dialog_l1(self):
         color = QColorDialog.getColor()
@@ -401,7 +411,7 @@ class WidgetGallery(QDialog):
     def create_final_img(self):
         self.current_img, self.current_img_2 = self.design.create_image()
         if self.l2_checkbox.isChecked() and self.l3_checkbox.isChecked() and self.l4_checkbox.isChecked():
-            print('l1 l2 l3 l4')
+            # print('l1 l2 l3 l4')
             l1_list = [(0, self.current_img.shape[1], 0, self.current_img.shape[0])]
             level_1_img, llevel2_list = self.add_level_one(self.current_img, l1_list)
             level_2_img, llevel3_list = self.add_level_two(level_1_img, llevel2_list)
@@ -420,7 +430,7 @@ class WidgetGallery(QDialog):
             self.update_final_img(None)
             self.update_final_img2()
         elif self.l2_checkbox.isChecked() and self.l3_checkbox.isChecked() and (not self.l4_checkbox.isChecked()):
-            print('l1 l2 l3 only')
+            # print('l1 l2 l3 only')
             l1_list = [(0, self.current_img.shape[1], 0, self.current_img.shape[0])]
             level_1_img, llevel2_list = self.add_level_one(self.current_img, l1_list)
             level_2_img, llevel3_list = self.add_level_two(level_1_img, llevel2_list)
@@ -439,7 +449,7 @@ class WidgetGallery(QDialog):
             self.update_final_img2()
 
         elif self.l2_checkbox.isChecked() and (not self.l3_checkbox.isChecked()):
-            print('l1 and l2 only')
+            # print('l1 and l2 only')
             l1_list = [(0, self.current_img.shape[1], 0, self.current_img.shape[0])]
             level_1_img, llevel2_list = self.add_level_one(self.current_img, l1_list)
             level_2_img, llevel3_list = self.add_level_two(level_1_img, llevel2_list)
@@ -456,7 +466,7 @@ class WidgetGallery(QDialog):
             self.update_final_img2()
 
         elif (not self.l2_checkbox.isChecked()):
-            print(' l1 only')
+            # print(' l1 only')
             l1_list = [(0, self.current_img.shape[1], 0, self.current_img.shape[0])]
             level_1_img, llevel2_list = self.add_level_one(self.current_img, l1_list)
 
